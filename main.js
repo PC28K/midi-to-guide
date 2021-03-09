@@ -1,28 +1,26 @@
+const fs = require('fs');
 const midi = require('midi');
  
 var input = new midi.Input();
-console.log('미디 포트의 수');
-console.log(input.getPortCount());
-console.log('미디 포트의 이름');
+console.log('미디포트 '+ input.getPortCount() +'개');
 console.log(input.getPortName(0));
 
+//변수 초기화
 var data = [];
 var status = [];
 var start = false;
 var prevevent = 0;
 
-input.on('message', function(deltaTime, message) {
-	//console.log('m:' + message + ' d:' + deltaTime);
+//미디 이벤트 들어왔을 때
+input.on('message', function(deltaTime, message){
+	//채널4 NOTE ON
 	if(message[0] == 147){
-		//채널4에 들어온 note on이면
 		if(start == false){
-			//아직 곡 시작 안 한 상태면
 			start = new Date().getTime();
 			status[message[1]] = false;
 			console.log('0: 곡 시작');
 		}
 		else{
-			//곡 시작했으면
 			now = (new Date().getTime()) - start;
 			
 			//1ms 보정
@@ -31,25 +29,37 @@ input.on('message', function(deltaTime, message) {
 			
 			console.log(now +': '+ message[1] +', '+ message[2]);
 			
-			if(message[2] > 10){
-				//ON
+			//캡처 종료신호 (C0 NOTE ON)
+			if(message[1] == 0)
+				fileexport();
+			
+			//ON / OFF
+			if(message[2] > 10)
 				status[message[1]] = now;
-			}
-			else{
-				//OFF
-				if(status[message[1]] != false){
-					//console.log(status[message[1]] +'~'+ now);
-					status[message[1]] = false;
-				}
-			}
+			else
+				noteoff(message[1], status[message[1]], now);
 		}
 	}
-	//console.log(message[0]);
+	//채널4 NOTE OFF
+	else if(message[0] == 131){
+		noteoff(message[1], status[message[1]], now);
+	}
 });
+
+//NOTE OFF
+function noteoff(pos, start, end){
+	if(status[pos] != false){
+		status[pos] = false;
+		data.push([pos,start,end]);
+	}
+}
+
+//캡처 종료
+function fileexport(){
+	console.log('캡처 종료');
+	console.log(data);
+	fs.writeFileSync('./result.json', JSON.stringify(data));
+	process.exit();
+}
+
 input.openPort(0);
-
-setTimeout(function() {
-	//input.closePort();
-}, 10000);
-
-console.log('ㅎㅇ');
