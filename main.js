@@ -14,7 +14,9 @@ var prevevent = 0;
 //미디 이벤트 들어왔을 때
 input.on('message', function(deltaTime, message){
 	//채널4 NOTE ON
+	//147: 4, 146: 3
 	if(message[0] == 147){
+	//if(message[0] == 147 || message[0] == 146){
 		if(start == false){
 			start = new Date().getTime();
 			status[message[1]] = false;
