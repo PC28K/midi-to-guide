@@ -36,8 +36,10 @@ input.on('message', function(deltaTime, message){
 				fileexport();
 			
 			//ON / OFF
-			if(message[2] > 10)
+			if(message[2] > 10){
+				noteoff(message[1], status[message[1]], now);
 				status[message[1]] = now;
+			}
 			else
 				noteoff(message[1], status[message[1]], now);
 		}
@@ -50,9 +52,11 @@ input.on('message', function(deltaTime, message){
 
 //NOTE OFF
 function noteoff(pos, start, end){
-	if(status[pos] != false){
-		status[pos] = false;
-		data.push([pos,start,end]);
+	if(status[pos] != false && status[pos] != undefined){
+		if(start < end){
+			status[pos] = false;
+			data.push([pos,start,end]);
+		}
 	}
 }
 
