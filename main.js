@@ -10,13 +10,17 @@ var data = [];
 var status = [];
 var start = false;
 var prevevent = 0;
+var setting;
+//var file = ;
+console.log (setting = JSON.parse(fs.readFileSync(__dirname +'\\setting.json')));
+var channel = setting.channel;
 
 //미디 이벤트 들어왔을 때
 input.on('message', function(deltaTime, message){
 	//채널4 NOTE ON
 	//147: 4, 146: 3
-	if(message[0] == 147){
-	//if(message[0] == 147 || message[0] == 146){
+	//if(message[0] == 147){
+	if(channel.includes(message[0])){
 		if(start == false){
 			start = new Date().getTime();
 			status[message[1]] = false;
@@ -36,7 +40,7 @@ input.on('message', function(deltaTime, message){
 				fileexport();
 			
 			//ON / OFF
-			if(message[2] > 10){
+			if(message[2] != 0){
 				noteoff(message[1], status[message[1]], now);
 				status[message[1]] = now;
 			}
