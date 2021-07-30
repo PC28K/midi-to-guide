@@ -40,7 +40,7 @@ input.on('message', function(deltaTime, message){
 				fileexport();
 			
 			//ON / OFF
-			if(message[2] != 0){
+			if(message[2] > 5){
 				noteoff(message[1], status[message[1]], now);
 				status[message[1]] = now;
 			}
